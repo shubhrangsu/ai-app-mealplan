@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>আমাদের Weekly Meal Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --saffron: #E87722;
+  --turmeric: #F5A623;
+  --gold: #D4AF37;
+  --forest: #2D6A4F;
+  --teal: #40916C;
+  --blue: #4A7CB0;
+  --cream: #FFF8EE;
+  --bg: #120A00;
+  --card: #221200;
+  --border: rgba(245,166,35,0.18);
+  --text: #F0D9A8;
+  --dim: #8A7050;
+  --indian: #E87722;
+  --asian: #40916C;
+  --cont: #4A7CB0;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;
+  background-image:radial-gradient(ellipse at 15% 40%,rgba(232,119,34,.05) 0%,transparent 55%),
+  radial-gradient(ellipse at 85% 70%,rgba(64,145,108,.04) 0%,transparent 45%)}
+
+/* HEADER */
+header{text-align:center;padding:48px 24px 32px;border-bottom:1px solid var(--border);position:relative}
+header::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:180px;height:2px;background:linear-gradient(90deg,transparent,var(--turmeric),transparent)}
+.htag{font-size:10px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:var(--turmeric);margin-bottom:10px}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:var(--cream);line-height:1.1}
+h1 em{color:var(--turmeric);font-style:italic}
+.hsub{margin-top:10px;color:var(--dim);font-size:13px}
+.members-bar{display:flex;gap:12px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+.mchip{display:flex;align-items:center;gap:7px;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);
+  border-radius:100px;padding:6px 15px;font-size:12.5px;font-weight:700;color:var(--turmeric)}
+.mchip span{opacity:.55;font-weight:400;font-size:11px}
+
+/* TABS */
+.tabs-wrap{display:flex;gap:8px;justify-content:center;padding:28px 24px 0;flex-wrap:wrap}
+.tab{background:transparent;border:1px solid var(--border);color:var(--dim);font-family:'Nunito',sans-serif;
+  font-size:12px;font-weight:800;padding:9px 22px;border-radius:100px;cursor:pointer;
+  transition:all .2s;text-transform:uppercase;letter-spacing:2px}
+.tab:hover{border-color:var(--saffron);color:var(--saffron)}
+.tab.active{background:var(--saffron);border-color:var(--saffron);color:#fff}
+
+/* NUTRITION BANNER */
+.nutri-banner{max-width:860px;margin:22px auto 0;padding:18px 28px;
+  background:rgba(232,119,34,.07);border:1px solid rgba(232,119,34,.15);border-radius:14px;
+  display:flex;gap:20px;justify-content:center;align-items:center;flex-wrap:wrap}
+.nutri-banner h3{font-family:'Playfair Display',serif;font-size:13px;color:var(--saffron);
+  font-weight:700;width:100%;text-align:center;margin-bottom:2px}
+.nstat .v{font-size:21px;font-weight:800;color:var(--turmeric);line-height:1}
+.nstat .l{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px}
+.ndiv{width:1px;height:30px;background:var(--border)}
+.flag-count{background:rgba(220,60,60,.15);border:1px solid rgba(220,60,60,.35);border-radius:100px;
+  padding:4px 14px;font-size:12px;font-weight:700;color:#E07070}
+
+/* LEGEND */
+.legend{display:flex;gap:18px;justify-content:center;padding:18px 24px 0;flex-wrap:wrap}
+.li{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--dim)}
+.ldot{width:8px;height:8px;border-radius:50%}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;
+  padding:20px 24px 40px;max-width:1380px;margin:0 auto}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;
+  transition:transform .2s,border-color .2s}
+.card:hover{transform:translateY(-2px);border-color:rgba(245,166,35,.32)}
+.card.flagged{border-color:rgba(220,60,60,.55);box-shadow:0 0 22px rgba(220,60,60,.12)}
+
+.ctype{padding:9px 15px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:7px}
+.ctype-icon{font-size:13px}
+.ctype-lbl{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--dim)}
+
+.cbody{padding:15px}
+.cbadge{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 10px;border-radius:100px;margin-bottom:9px}
+.cbadge.Indian{background:rgba(232,119,34,.18);color:var(--indian)}
+.cbadge.Asian{background:rgba(64,145,108,.18);color:var(--asian)}
+.cbadge.Continental{background:rgba(74,124,176,.18);color:var(--cont)}
+
+.cname{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--cream);
+  margin-bottom:6px;line-height:1.3}
+.cemoji{font-size:1.3rem;margin-right:5px}
+.cdesc{font-size:12.5px;color:var(--dim);line-height:1.65;margin-bottom:13px}
+
+.pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:0}
+.pill{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:100px;
+  background:rgba(255,255,255,.05);color:var(--dim)}
+.pill.cal{color:var(--turmeric);background:rgba(245,166,35,.1)}
+
+/* FLAG ALERT */
+.falert{margin:12px 15px 0;background:rgba(220,60,60,.1);border:1px solid rgba(220,60,60,.3);
+  border-radius:8px;padding:9px 12px;font-size:12px;font-weight:700;color:#E07070;display:flex;align-items:center;gap:7px}
+
+/* VOTING */
+.vsect{border-top:1px solid var(--border);padding:12px 15px}
+.vlbl{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:9px}
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.vrow{display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.025);border-radius:8px;padding:6px 10px}
+.vmem{font-size:12px;font-weight:700;color:var(--text)}
+.vbtns{display:flex;gap:4px}
+.vbtn{width:28px;height:28px;border-radius:50%;border:1.5px solid transparent;
+  background:rgba(255,255,255,.06);cursor:pointer;font-size:13px;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;outline:none}
+.vbtn:hover{transform:scale(1.18)}
+.vbtn.like.on{background:rgba(64,145,108,.22);border-color:var(--teal)}
+.vbtn.dis.on{background:rgba(200,50,50,.18);border-color:#C83232}
+
+/* FOOTER */
+footer{text-align:center;padding:28px 24px 48px;color:var(--dim);font-size:12px;
+  border-top:1px solid var(--border);line-height:2}
+footer strong{color:var(--turmeric)}
+
+@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.grid .card:nth-child(1){animation:fadein .28s ease both}
+.grid .card:nth-child(2){animation:fadein .28s .07s ease both}
+.grid .card:nth-child(3){animation:fadein .28s .14s ease both}
+.grid .card:nth-child(4){animation:fadein .28s .21s ease both}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const MEMBERS = [
+  {id:'baba',  name:'Shubhrangsu', e:'👨'},
+  {id:'ma',    name:'Sreya',       e:'👩'},
+  {id:'didi',  name:'Siddhant',    e:'👦'},
+  {id:'chhoto',name:'Srujonika',   e:'👧'}
+];
+
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+const TYPES = [
+  {key:'breakfast', label:'Breakfast', icon:'🌅'},
+  {key:'lunch',     label:'Lunch',     icon:'☀️'},
+  {key:'snack',     label:'Snack',     icon:'🍃'},
+  {key:'dinner',    label:'Dinner',    icon:'🌙'}
+];
+
+const PLAN = {
+  Monday:{
+    breakfast:{id:'mon-b',name:'Luchi with Aloo Dum',cuisine:'Indian',e:'🫓',
+      desc:'Deep-fried puffed breads with Bengali spiced potato curry — a cherished morning feast.',
+      kcal:520,pro:11,carb:72,fat:22,fib:4},
+    lunch:{id:'mon-l',name:'Ilish Macher Jhol',cuisine:'Indian',e:'🐟',
+      desc:'Hilsa fish simmered in light mustard gravy with turmeric, steamed rice and crispy fried eggplant.',
+      kcal:680,pro:38,carb:78,fat:22,fib:5},
+    snack:{id:'mon-s',name:'Jhalmuri',cuisine:'Indian',e:'🥜',
+      desc:'Puffed rice tossed with mustard oil, raw onion, green chili, cucumber and chanachur.',
+      kcal:185,pro:5,carb:32,fat:6,fib:3},
+    dinner:{id:'mon-d',name:'Herb Roasted Chicken & Quinoa',cuisine:'Continental',e:'🍗',
+      desc:'Rosemary-thyme marinated chicken breast with quinoa pilaf and seasonal roasted vegetables.',
+      kcal:575,pro:42,carb:45,fat:18,fib:7}
+  },
+  Tuesday:{
+    breakfast:{id:'tue-b',name:'Banana Oat Smoothie Bowl',cuisine:'Continental',e:'🥣',
+      desc:'Blended banana-oat base topped with mixed berries, granola, chia seeds and honey drizzle.',
+      kcal:420,pro:9,carb:78,fat:8,fib:6},
+    lunch:{id:'tue-l',name:'Chingri Malai Curry',cuisine:'Indian',e:'🦐',
+      desc:'Tiger prawns slow-cooked in creamy coconut milk with panch phoron spices and steamed basmati rice.',
+      kcal:720,pro:35,carb:82,fat:28,fib:4},
+    snack:{id:'tue-s',name:'Singara (Potato Samosa)',cuisine:'Indian',e:'🥟',
+      desc:'Crispy golden pastry stuffed with spiced potato and peas, served with green and tamarind chutneys.',
+      kcal:220,pro:5,carb:28,fat:10,fib:2},
+    dinner:{id:'tue-d',name:'Vegetable Hakka Noodles',cuisine:'Asian',e:'🍜',
+      desc:'Indo-Chinese wok-tossed noodles with bell peppers, cabbage and spring onion in savory soy-ginger sauce.',
+      kcal:480,pro:14,carb:75,fat:14,fib:6}
+  },
+  Wednesday:{
+    breakfast:{id:'wed-b',name:'Upma with Coconut Chutney',cuisine:'Indian',e:'🥘',
+      desc:'Savory semolina with mustard seeds, curry leaves, green chili and vegetables, with fresh coconut chutney.',
+      kcal:380,pro:10,carb:62,fat:12,fib:5},
+    lunch:{id:'wed-l',name:'Chicken Teriyaki Bowl',cuisine:'Asian',e:'🍱',
+      desc:'Glazed teriyaki chicken over brown rice with steamed edamame, pickled ginger and toasted sesame.',
+      kcal:650,pro:38,carb:72,fat:18,fib:6},
+    snack:{id:'wed-s',name:'Fresh Seasonal Fruit Salad',cuisine:'Continental',e:'🍎',
+      desc:'Mixed seasonal fruits with fresh mint, lime zest and a light honey glaze.',
+      kcal:150,pro:2,carb:35,fat:1,fib:5},
+    dinner:{id:'wed-d',name:'Dal Makhani with Roti',cuisine:'Indian',e:'🫘',
+      desc:'Slow-simmered black lentils in rich tomato-cream sauce, with whole wheat roti and cooling raita.',
+      kcal:565,pro:22,carb:78,fat:16,fib:12}
+  },
+  Thursday:{
+    breakfast:{id:'thu-b',name:'Scrambled Eggs & Multigrain Toast',cuisine:'Continental',e:'🍳',
+      desc:'Fluffy herb-scrambled eggs on multigrain toast with sliced avocado and fresh orange juice.',
+      kcal:450,pro:22,carb:38,fat:20,fib:5},
+    lunch:{id:'thu-l',name:'Mutton Kosha',cuisine:'Indian',e:'🍖',
+      desc:'Slow-braised mutton in dark Bengali spice paste — deeply aromatic bhuna style — served with luchi.',
+      kcal:750,pro:42,carb:45,fat:35,fib:3},
+    snack:{id:'thu-s',name:'Muri with Chanachur',cuisine:'Indian',e:'🍿',
+      desc:'Crunchy puffed rice with spiced chanachur, roasted peanuts and a drizzle of mustard oil.',
+      kcal:200,pro:6,carb:30,fat:7,fib:2},
+    dinner:{id:'thu-d',name:'Gyoza & Miso Soup',cuisine:'Asian',e:'🥢',
+      desc:'Pan-fried vegetable dumplings with ponzu dipping sauce, warm miso soup with tofu and steamed rice.',
+      kcal:520,pro:18,carb:68,fat:16,fib:5}
+  },
+  Friday:{
+    breakfast:{id:'fri-b',name:'Congee with Soft-Boiled Egg',cuisine:'Asian',e:'🍚',
+      desc:'Silky slow-cooked rice porridge with soft-boiled egg, crispy shallots, scallions and sesame oil.',
+      kcal:350,pro:14,carb:52,fat:9,fib:2},
+    lunch:{id:'fri-l',name:'Mochar Ghonto',cuisine:'Indian',e:'🌸',
+      desc:'Bengali banana flower stir-fry with potatoes, fresh coconut and warm spices — served with rice and papad.',
+      kcal:580,pro:15,carb:88,fat:18,fib:9},
+    snack:{id:'fri-s',name:'Hummus & Pita Platter',cuisine:'Continental',e:'🫓',
+      desc:'Creamy hummus with warm pita, cucumber sticks, cherry tomatoes, olives and a paprika drizzle.',
+      kcal:280,pro:10,carb:38,fat:11,fib:6},
+    dinner:{id:'fri-d',name:'Seekh Kebab & Saffron Rice',cuisine:'Indian',e:'🍢',
+      desc:'Spiced minced meat skewers with aromatic saffron-infused basmati, mint chutney and cucumber raita.',
+      kcal:685,pro:38,carb:62,fat:26,fib:4}
+  }
+};
+
+let activeDay = 'Monday';
+let votes = JSON.parse(localStorage.getItem('mp-votes') || '{}');
+
+function saveVotes(){ localStorage.setItem('mp-votes', JSON.stringify(votes)); }
+function getVote(mid, mbr){ return votes[mid]?.[mbr] || null; }
+
+function setVote(mid, mbr, val){
+  if(!votes[mid]) votes[mid]={};
+  votes[mid][mbr] = (votes[mid][mbr]===val) ? null : val;
+  saveVotes();
+  render();
+}
+window.setVote = setVote;
+
+function isFlagged(mid){
+  if(!votes[mid]) return false;
+  return MEMBERS.filter(m=>votes[mid][m.id]==='dis').length >= 3;
+}
+
+function dayNutri(day){
+  const ms = Object.values(PLAN[day]);
+  return {
+    kcal:ms.reduce((a,m)=>a+m.kcal,0),
+    pro: ms.reduce((a,m)=>a+m.pro,0),
+    carb:ms.reduce((a,m)=>a+m.carb,0),
+    fat: ms.reduce((a,m)=>a+m.fat,0),
+    fib: ms.reduce((a,m)=>a+m.fib,0)
+  };
+}
+
+function allFlaggedCount(){
+  return DAYS.flatMap(d=>TYPES.map(t=>PLAN[d][t.key].id)).filter(id=>isFlagged(id)).length;
+}
+
+function card(meal, type){
+  const flagged = isFlagged(meal.id);
+  const dis = MEMBERS.filter(m=>getVote(meal.id,m.id)==='dis').length;
+
+  const rows = MEMBERS.map(m=>{
+    const v = getVote(meal.id,m.id);
+    return `<div class="vrow">
+      <span class="vmem">${m.e} ${m.name}</span>
+      <div class="vbtns">
+        <button class="vbtn like ${v==='like'?'on':''}" onclick="setVote('${meal.id}','${m.id}','like')" title="Like">👍</button>
+        <button class="vbtn dis  ${v==='dis' ?'on':''}" onclick="setVote('${meal.id}','${m.id}','dis')"  title="Dislike">👎</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  const alert = flagged
+    ? `<div class="falert">⚠️ Flagged for replacement — ${dis}/4 members dislike this dish</div>`
+    : '';
+
+  return `<div class="card ${flagged?'flagged':''}">
+    <div class="ctype"><span class="ctype-icon">${type.icon}</span><span class="ctype-lbl">${type.label}</span></div>
+    <div class="cbody">
+      <span class="cbadge ${meal.cuisine}">${meal.cuisine}</span>
+      <div class="cname"><span class="cemoji">${meal.e}</span>${meal.name}</div>
+      <div class="cdesc">${meal.desc}</div>
+      <div class="pills">
+        <span class="pill cal">🔥 ${meal.kcal} kcal</span>
+        <span class="pill">🥩 ${meal.pro}g protein</span>
+        <span class="pill">🌾 ${meal.carb}g carbs</span>
+        <span class="pill">🫙 ${meal.fat}g fat</span>
+        <span class="pill">🌿 ${meal.fib}g fiber</span>
+      </div>
+    </div>
+    ${alert}
+    <div class="vsect">
+      <div class="vlbl">Family Votes</div>
+      <div class="vgrid">${rows}</div>
+    </div>
+  </div>`;
+}
+
+function render(){
+  const n  = dayNutri(activeDay);
+  const fc = allFlaggedCount();
+
+  const tabs = DAYS.map(d=>
+    `<button class="tab ${d===activeDay?'active':''}" onclick="switchDay('${d}')">${d.slice(0,3)}</button>`
+  ).join('');
+
+  const cards = TYPES.map(t=>card(PLAN[activeDay][t.key],t)).join('');
+
+  const flagNode = fc>0
+    ? `<div class="ndiv"></div><div class="flag-count">⚠️ ${fc} flagged meal${fc>1?'s':''}</div>`
+    : '';
+
+  document.getElementById('app').innerHTML = `
+    <header>
+      <div class="htag">Bengali Family · 5-Day Meal Planner · WHO Nutrition</div>
+      <h1>আমাদের <em>সাপ্তাহিক</em> খাবার</h1>
+      <div class="hsub">4 members · 50% Indian · 25% Asian · 25% Continental · click 👍👎 to vote per member</div>
+      <div class="members-bar">
+        ${MEMBERS.map(m=>`<div class="mchip">${m.e} ${m.name}</div>`).join('')}
+      </div>
+    </header>
+
+    <div class="tabs-wrap">${tabs}</div>
+
+    <div style="padding:0 24px">
+      <div class="nutri-banner">
+        <h3>Daily Nutrition Totals · ${activeDay}</h3>
+        <div class="nstat"><div class="v">${n.kcal}</div><div class="l">Calories</div></div>
+        <div class="ndiv"></div>
+        <div class="nstat"><div class="v">${n.pro}g</div><div class="l">Protein</div></div>
+        <div class="ndiv"></div>
+        <div class="nstat"><div class="v">${n.carb}g</div><div class="l">Carbs</div></div>
+        <div class="ndiv"></div>
+        <div class="nstat"><div class="v">${n.fat}g</div><div class="l">Fat</div></div>
+        <div class="ndiv"></div>
+        <div class="nstat"><div class="v">${n.fib}g</div><div class="l">Fiber</div></div>
+        ${flagNode}
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="li"><div class="ldot" style="background:var(--indian)"></div>Indian</div>
+      <div class="li"><div class="ldot" style="background:var(--asian)"></div>Asian</div>
+      <div class="li"><div class="ldot" style="background:var(--cont)"></div>Continental</div>
+      <div class="li" style="margin-left:8px;color:#E07070">⚠️ 3+ dislikes → flagged for replacement</div>
+    </div>
+
+    <div class="grid">${cards}</div>
+
+    <footer>
+      <strong>WHO Daily Nutritional Guidelines</strong><br>
+      Shubhrangsu: ~2300–2500 kcal · 56g protein · 1000mg calcium &nbsp;|&nbsp;
+      Sreya: ~1900–2100 kcal · 46g protein · 1000mg calcium<br>
+      Siddhant: ~2000–2200 kcal · 43g protein · 1300mg calcium &nbsp;|&nbsp;
+      Srujonika: ~1800–2000 kcal · 34g protein · 1300mg calcium<br>
+      <span style="opacity:.5;font-size:11px">Nutrition values are per person per serving · Votes persist across sessions</span>
+    </footer>
+  `;
+}
+
+function switchDay(day){ activeDay=day; render(); }
+window.switchDay = switchDay;
+
+render();
+</script>
+</body>
+</html>

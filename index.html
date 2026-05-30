@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Meal Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--saffron:#E87722;--turmeric:#F5A623;--teal:#40916C;--cream:#FFF8EE;--bg:#120A00;--card:#221200;--border:rgba(245,166,35,.18);--text:#F0D9A8;--dim:#8A7050}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;background-image:radial-gradient(ellipse at 15% 40%,rgba(232,119,34,.05) 0%,transparent 55%)}
+.wizard{max-width:580px;margin:0 auto;padding:36px 20px 60px}
+.wiz-top{text-align:center;margin-bottom:36px}
+.htag{font-size:10px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:var(--turmeric);margin-bottom:8px}
+.wiz-title{font-family:'Playfair Display',serif;font-size:2.1rem;font-weight:900;color:var(--cream);line-height:1.1}
+.wiz-title em{color:var(--turmeric);font-style:italic}
+.wiz-sub{color:var(--dim);font-size:13px;margin-top:6px}
+.progress{display:flex;align-items:center;margin-bottom:36px}
+.ps{flex:0 0 auto;text-align:center}
+.ps-dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);background:var(--card);color:var(--dim);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;transition:all .2s}
+.ps.done .ps-dot{background:var(--teal);border-color:var(--teal);color:#fff}
+.ps.active .ps-dot{background:var(--saffron);border-color:var(--saffron);color:#fff}
+.ps-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)}
+.ps.active .ps-lbl{color:var(--saffron)}
+.ps.done .ps-lbl{color:var(--teal)}
+.pline{flex:1;height:2px;background:var(--border);margin-bottom:20px}
+.pline.done{background:var(--teal)}
+.step-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px;animation:wfade .3s ease both}
+@keyframes wfade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.step-title{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;color:var(--cream);margin-bottom:4px}
+.step-desc{font-size:13px;color:var(--dim);margin-bottom:22px}
+.fg{margin-bottom:16px}
+.fl{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:6px;display:block}
+.fi{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--saffron)}
+.fi::placeholder{color:var(--dim);font-weight:400}
+select.fi{cursor:pointer}
+option{background:#221200}
+.mrow{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:14px;align-items:end}
+.mnum{font-size:10px;font-weight:800;color:var(--turmeric);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.ck-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.ck{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:11px 13px;cursor:pointer;transition:all .2s;user-select:none}
+.ck.on{background:rgba(232,119,34,.1);border-color:rgba(232,119,34,.4)}
+.ckbox{width:19px;height:19px;border-radius:5px;border:2px solid var(--dim);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:11px}
+.ck.on .ckbox{background:var(--saffron);border-color:var(--saffron);color:#fff}
+.ck-lbl{font-size:13px;font-weight:700;color:var(--text)}
+.crow{margin-bottom:14px}
+.chead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.cname-lbl{font-size:13px;font-weight:700;color:var(--text)}
+.cpct{font-size:14px;font-weight:800;min-width:38px;text-align:right}
+input[type=range]{width:100%;-webkit-appearance:none;height:5px;border-radius:3px;background:rgba(255,255,255,.1);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;cursor:pointer;border:2px solid var(--bg)}
+.total-bar{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-radius:10px;margin-top:6px;font-size:13px;font-weight:800}
+.total-bar.ok{background:rgba(64,145,108,.15);color:var(--teal);border:1px solid rgba(64,145,108,.3)}
+.total-bar.bad{background:rgba(200,50,50,.15);color:#E07070;border:1px solid rgba(200,50,50,.3)}
+.btn-row{display:flex;gap:10px;margin-top:22px}
+.btn{padding:11px 26px;border-radius:100px;border:none;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .2s}
+.btn-primary{background:var(--saffron);color:#fff;flex:1}
+.btn-primary:hover{background:#d06010}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed}
+.btn-sec{background:rgba(255,255,255,.06);color:var(--dim);border:1px solid var(--border)}
+.btn-sec:hover{border-color:var(--saffron);color:var(--saffron)}
+.btn-ghost{background:transparent;color:var(--dim);border:1px solid var(--border);padding:8px 16px;font-size:11px}
+.btn-ghost:hover{border-color:var(--saffron);color:var(--saffron)}
+/* COOKED SELECT */
+.cooked-sel{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--dim);font-family:'Nunito',sans-serif;font-size:10px;font-weight:700;padding:3px 7px;border-radius:7px;cursor:pointer;outline:none;transition:all .2s;-webkit-appearance:none;appearance:none;padding-right:18px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238A7050'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center}
+.cooked-sel.is-cooked{background-color:rgba(64,145,108,.15);border-color:rgba(64,145,108,.5);color:var(--teal)}
+.cooked-count{display:inline-flex;align-items:center;gap:5px;background:rgba(64,145,108,.12);border:1px solid rgba(64,145,108,.25);border-radius:100px;padding:3px 12px;font-size:11px;font-weight:700;color:var(--teal)}
+/* MAIN APP */
+header{text-align:center;padding:38px 24px 26px;border-bottom:1px solid var(--border);position:relative}
+header::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:180px;height:2px;background:linear-gradient(90deg,transparent,var(--turmeric),transparent)}
+h1{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,5vw,3rem);font-weight:900;color:var(--cream);line-height:1.1}
+h1 em{color:var(--turmeric);font-style:italic}
+.hacts{display:flex;gap:9px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.mbar{display:flex;gap:9px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.mchip{display:flex;align-items:center;gap:6px;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:100px;padding:5px 13px;font-size:12px;font-weight:700;color:var(--turmeric)}
+.tabs-wrap{display:flex;gap:7px;justify-content:center;padding:22px 24px 0;flex-wrap:wrap}
+.tab{background:transparent;border:1px solid var(--border);color:var(--dim);font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;padding:8px 19px;border-radius:100px;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:2px}
+.tab:hover{border-color:var(--saffron);color:var(--saffron)}
+.tab.active{background:var(--saffron);border-color:var(--saffron);color:#fff}
+.nbanner{max-width:820px;margin:18px auto 0;padding:15px 22px;background:rgba(232,119,34,.07);border:1px solid rgba(232,119,34,.15);border-radius:14px;display:flex;gap:16px;justify-content:center;align-items:center;flex-wrap:wrap}
+.nbanner h3{font-family:'Playfair Display',serif;font-size:12px;color:var(--saffron);font-weight:700;width:100%;text-align:center}
+.nst .v{font-size:20px;font-weight:800;color:var(--turmeric);line-height:1}
+.nst .l{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px}
+.ndiv{width:1px;height:26px;background:var(--border)}
+.legend{display:flex;gap:13px;justify-content:center;padding:15px 24px 0;flex-wrap:wrap}
+.li{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim)}
+.ldot{width:7px;height:7px;border-radius:50%}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:16px;padding:18px 24px 40px;max-width:1380px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:transform .2s,border-color .2s}
+.card:hover{transform:translateY(-2px);border-color:rgba(245,166,35,.3)}
+.card.flagged{border-color:rgba(220,60,60,.55);box-shadow:0 0 20px rgba(220,60,60,.1)}
+.ctype{padding:8px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
+.ctype-lbl{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--dim)}
+.cbody{padding:13px}
+.cbadge{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:8px}
+.cname{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--cream);margin-bottom:5px;line-height:1.3}
+.cemoji{font-size:1.2rem;margin-right:4px}
+.cdesc{font-size:12px;color:var(--dim);line-height:1.65;margin-bottom:11px}
+.pills{display:flex;gap:4px;flex-wrap:wrap}
+.pill{font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:rgba(255,255,255,.05);color:var(--dim)}
+.pill.cal{color:var(--turmeric);background:rgba(245,166,35,.1)}
+.falert{margin:10px 13px 0;background:rgba(220,60,60,.1);border:1px solid rgba(220,60,60,.3);border-radius:8px;padding:8px 11px;font-size:12px;font-weight:700;color:#E07070;display:flex;align-items:center;gap:7px}
+.vsect{border-top:1px solid var(--border);padding:10px 13px}
+.vlbl{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.vrow{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.025);border-radius:8px;padding:5px 9px}
+.vmem{font-size:11px;font-weight:700;color:var(--text)}
+.vbtns{display:flex;gap:3px}
+.vbtn{width:26px;height:26px;border-radius:50%;border:1.5px solid transparent;background:rgba(255,255,255,.06);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all .15s;outline:none}
+.vbtn:hover{transform:scale(1.15)}
+.vbtn.like.on{background:rgba(64,145,108,.22);border-color:var(--teal)}
+.vbtn.dis.on{background:rgba(200,50,50,.18);border-color:#C83232}
+footer{text-align:center;padding:22px 24px 40px;color:var(--dim);font-size:12px;border-top:1px solid var(--border);line-height:1.9}
+footer strong{color:var(--turmeric)}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.grid .card:nth-child(1){animation:fadein .25s ease both}
+.grid .card:nth-child(2){animation:fadein .25s .06s ease both}
+.grid .card:nth-child(3){animation:fadein .25s .12s ease both}
+.grid .card:nth-child(4){animation:fadein .25s .18s ease both}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const CL={Indian:'#E87722',Italian:'#C0392B',Continental:'#4A7CB0',Asian:'#40916C',Mexican:'#8E44AD'};
+const CE={Indian:'🪔',Italian:'🍕',Continental:'🍽️',Asian:'🥢',Mexican:'🌮'};
+const CUISINES=['Indian','Italian','Continental','Asian','Mexican'];
+const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday'];
+const MTS=[{key:'breakfast',label:'Breakfast',icon:'🌅'},{key:'lunch',label:'Lunch',icon:'☀️'},{key:'snack',label:'Snack',icon:'🍃'},{key:'dinner',label:'Dinner',icon:'🌙'}];
+
+const DB={
+  breakfast:{
+    Indian:[
+      {name:'Luchi with Aloo Dum',e:'🫓',desc:'Deep-fried puffed breads with Bengali spiced potato curry.',kcal:520,pro:11,carb:72,fat:22,fib:4},
+      {name:'Masala Dosa with Sambar',e:'🥞',desc:'Crispy rice-lentil crepe with spiced potato, sambar and coconut chutney.',kcal:450,pro:12,carb:68,fat:14,fib:6},
+      {name:'Upma with Coconut Chutney',e:'🥘',desc:'Savory semolina with mustard seeds, curry leaves and fresh vegetables.',kcal:380,pro:10,carb:62,fat:12,fib:5},
+      {name:'Aloo Paratha with Curd',e:'🫓',desc:'Whole wheat flatbread stuffed with spiced potato, fresh curd and pickle.',kcal:490,pro:13,carb:70,fat:16,fib:5},
+      {name:'Poha with Peanuts',e:'🍚',desc:'Flattened rice with turmeric, mustard seeds, onion and roasted peanuts.',kcal:360,pro:9,carb:58,fat:10,fib:4}
+    ],
+    Italian:[
+      {name:'Frittata al Forno',e:'🍳',desc:'Baked Italian omelette with roasted vegetables, herbs and parmesan.',kcal:420,pro:22,carb:12,fat:28,fib:3},
+      {name:'Bruschetta with Eggs',e:'🍞',desc:'Toasted ciabatta with scrambled eggs, cherry tomatoes and fresh basil.',kcal:400,pro:18,carb:42,fat:16,fib:4},
+      {name:'Cornetto and Cappuccino',e:'☕',desc:'Buttery Italian croissant with a frothy cappuccino and fresh fruit.',kcal:380,pro:8,carb:52,fat:14,fib:2},
+      {name:'Ricotta Pancakes',e:'🥞',desc:'Light fluffy pancakes with ricotta cheese, lemon zest and berry compote.',kcal:460,pro:16,carb:58,fat:16,fib:3}
+    ],
+    Continental:[
+      {name:'Scrambled Eggs & Toast',e:'🍳',desc:'Fluffy herb-scrambled eggs on multigrain toast with avocado.',kcal:450,pro:22,carb:38,fat:20,fib:5},
+      {name:'Banana Oat Smoothie Bowl',e:'🥣',desc:'Blended banana-oat base with mixed berries, granola and honey.',kcal:420,pro:9,carb:78,fat:8,fib:6},
+      {name:'French Toast with Berries',e:'🍓',desc:'Brioche French toast with mixed berries, maple syrup and whipped cream.',kcal:480,pro:14,carb:68,fat:16,fib:4},
+      {name:'Granola Yogurt Bowl',e:'🫙',desc:'Greek yogurt with homemade granola, seasonal fruit and honey.',kcal:380,pro:18,carb:48,fat:10,fib:5},
+      {name:'Classic Buttermilk Pancakes',e:'🥞',desc:'Fluffy pancakes with maple syrup, fresh blueberries and butter.',kcal:500,pro:12,carb:72,fat:16,fib:3}
+    ],
+    Asian:[
+      {name:'Congee with Soft-Boiled Egg',e:'🍚',desc:'Silky rice porridge with soft-boiled egg, crispy shallots and sesame oil.',kcal:350,pro:14,carb:52,fat:9,fib:2},
+      {name:'Miso Soup & Onigiri',e:'🍙',desc:'Warm miso soup with tofu and wakame, with two seaweed rice balls.',kcal:340,pro:12,carb:58,fat:7,fib:3},
+      {name:'Dim Sum Basket',e:'🥟',desc:'Steamed har gow, siu mai and char siu bao with soy-ginger dipping sauce.',kcal:420,pro:18,carb:52,fat:12,fib:3},
+      {name:'Tamago Gohan',e:'🥚',desc:'Japanese egg over hot steamed rice with soy sauce and sesame oil.',kcal:320,pro:12,carb:50,fat:8,fib:1}
+    ],
+    Mexican:[
+      {name:'Huevos Rancheros',e:'🍅',desc:'Fried eggs on corn tortillas with ranchero sauce, black beans and avocado.',kcal:480,pro:22,carb:48,fat:22,fib:8},
+      {name:'Chilaquiles Verdes',e:'🌿',desc:'Tortilla chips in green tomatillo salsa topped with crema and egg.',kcal:520,pro:18,carb:58,fat:22,fib:6},
+      {name:'Breakfast Burrito',e:'🌯',desc:'Flour tortilla with scrambled eggs, black beans, peppers and cheese.',kcal:560,pro:24,carb:62,fat:22,fib:7},
+      {name:'Avocado Toast with Salsa',e:'🥑',desc:'Toast with smashed avocado, fresh pico de gallo and hot sauce.',kcal:380,pro:10,carb:42,fat:18,fib:8}
+    ]
+  },
+  lunch:{
+    Indian:[
+      {name:'Ilish Macher Jhol',e:'🐟',desc:'Hilsa fish in light mustard gravy with steamed rice and fried eggplant.',kcal:680,pro:38,carb:78,fat:22,fib:5},
+      {name:'Chingri Malai Curry',e:'🦐',desc:'Tiger prawns in creamy coconut milk with panch phoron and basmati rice.',kcal:720,pro:35,carb:82,fat:28,fib:4},
+      {name:'Chicken Biryani',e:'🍛',desc:'Slow-cooked basmati layered with spiced chicken and caramelized onions.',kcal:780,pro:42,carb:88,fat:24,fib:4},
+      {name:'Rajma Chawal',e:'🫘',desc:'Slow-cooked kidney beans in rich tomato-onion gravy with steamed rice.',kcal:620,pro:24,carb:92,fat:12,fib:14},
+      {name:'Paneer Butter Masala',e:'🧀',desc:'Soft cottage cheese in a velvety tomato-cream sauce with butter naan.',kcal:680,pro:28,carb:72,fat:30,fib:5},
+      {name:'Dal Tadka with Rice',e:'🍲',desc:'Yellow lentils tempered with cumin, garlic and dried chilies, with rice.',kcal:580,pro:22,carb:88,fat:12,fib:10}
+    ],
+    Italian:[
+      {name:'Pasta Arrabiata',e:'🍝',desc:'Penne in spicy tomato sauce with garlic, chili and fresh basil.',kcal:580,pro:18,carb:88,fat:14,fib:6},
+      {name:'Risotto ai Funghi',e:'🍄',desc:'Creamy arborio rice with wild mushrooms, white wine and parmesan.',kcal:620,pro:18,carb:80,fat:20,fib:4},
+      {name:'Minestrone with Ciabatta',e:'🥖',desc:'Hearty vegetable and bean soup with herb pesto and crusty bread.',kcal:480,pro:18,carb:72,fat:10,fib:12},
+      {name:'Penne Bolognese',e:'🍝',desc:'Classic slow-cooked meat sauce with san marzano tomatoes over penne.',kcal:680,pro:38,carb:82,fat:20,fib:5},
+      {name:'Gnocchi al Pesto',e:'🥬',desc:'Pillowy potato gnocchi in fresh basil pesto with sun-dried tomatoes.',kcal:600,pro:16,carb:78,fat:22,fib:5}
+    ],
+    Continental:[
+      {name:'Caesar Salad with Chicken',e:'🥗',desc:'Crisp romaine, grilled chicken, parmesan, croutons and Caesar dressing.',kcal:520,pro:38,carb:28,fat:28,fib:4},
+      {name:'Club Sandwich & Fries',e:'🥪',desc:'Triple-decker chicken, bacon, lettuce and tomato with crispy fries.',kcal:720,pro:38,carb:72,fat:30,fib:5},
+      {name:'Quiche Lorraine',e:'🥧',desc:'Buttery pastry with eggs, cream, bacon and gruyère, with mixed salad.',kcal:580,pro:22,carb:38,fat:36,fib:3},
+      {name:'Grilled Salmon & Asparagus',e:'🐟',desc:'Pan-seared salmon with roasted asparagus, lemon butter and quinoa.',kcal:560,pro:42,carb:32,fat:26,fib:6},
+      {name:'French Onion Soup',e:'🧅',desc:'Slow-caramelized onion soup with gruyère croutons and baguette.',kcal:440,pro:16,carb:52,fat:18,fib:4}
+    ],
+    Asian:[
+      {name:'Chicken Fried Rice',e:'🍳',desc:'Wok-tossed jasmine rice with chicken, vegetables, egg and soy-sesame.',kcal:620,pro:32,carb:78,fat:18,fib:4},
+      {name:'Tonkotsu Ramen',e:'🍜',desc:'Rich pork bone broth with noodles, chashu pork, soft-boiled egg and nori.',kcal:720,pro:38,carb:72,fat:28,fib:4},
+      {name:'Pad Thai',e:'🍜',desc:'Stir-fried rice noodles with shrimp, egg, bean sprouts, peanuts and tamarind.',kcal:620,pro:28,carb:80,fat:18,fib:5},
+      {name:'Sushi Bowl',e:'🍱',desc:'Sushi rice with salmon sashimi, cucumber, avocado, edamame and sriracha mayo.',kcal:580,pro:32,carb:68,fat:16,fib:6},
+      {name:'Thai Green Curry',e:'🌿',desc:'Fragrant coconut milk curry with chicken, Thai basil and jasmine rice.',kcal:680,pro:34,carb:72,fat:28,fib:5}
+    ],
+    Mexican:[
+      {name:'Chicken Tacos',e:'🌮',desc:'Soft corn tortillas with seasoned chicken, pico de gallo and guacamole.',kcal:580,pro:34,carb:58,fat:22,fib:8},
+      {name:'Burrito Bowl',e:'🥣',desc:'Cilantro-lime rice with black beans, grilled chicken, corn salsa and guac.',kcal:680,pro:38,carb:78,fat:22,fib:12},
+      {name:'Enchiladas Rojas',e:'🌯',desc:'Corn tortillas filled with chicken and cheese, smothered in red chile sauce.',kcal:640,pro:32,carb:68,fat:24,fib:7},
+      {name:'Quesadillas with Salsa',e:'🫓',desc:'Crispy flour tortillas with chicken, peppers and melted cheese.',kcal:560,pro:28,carb:58,fat:24,fib:5},
+      {name:'Pozole Rojo',e:'🍲',desc:'Hominy and pork soup in red chile broth with cabbage and lime.',kcal:520,pro:32,carb:52,fat:16,fib:8}
+    ]
+  },
+  snack:{
+    Indian:[
+      {name:'Jhalmuri',e:'🥜',desc:'Puffed rice with mustard oil, onion, green chili, cucumber and chanachur.',kcal:185,pro:5,carb:32,fat:6,fib:3},
+      {name:'Singara (Samosa)',e:'🥟',desc:'Crispy pastry stuffed with spiced potato and peas with chutneys.',kcal:220,pro:5,carb:28,fat:10,fib:2},
+      {name:'Aloo Tikki Chaat',e:'🥔',desc:'Crispy potato cakes with chutneys, yogurt, sev and chaat masala.',kcal:260,pro:7,carb:38,fat:9,fib:4},
+      {name:'Onion Pakora',e:'🧅',desc:'Crispy battered onion fritters with green chutney and masala chai.',kcal:240,pro:6,carb:28,fat:11,fib:3},
+      {name:'Muri with Chanachur',e:'🍿',desc:'Puffed rice with spiced chanachur, roasted peanuts and mustard oil.',kcal:200,pro:6,carb:30,fat:7,fib:2}
+    ],
+    Italian:[
+      {name:'Bruschetta al Pomodoro',e:'🍅',desc:'Grilled ciabatta with fresh tomatoes, garlic, basil and olive oil.',kcal:220,pro:6,carb:32,fat:8,fib:3},
+      {name:'Caprese Skewers',e:'🍡',desc:'Buffalo mozzarella, cherry tomatoes and basil with balsamic glaze.',kcal:200,pro:10,carb:8,fat:14,fib:1},
+      {name:'Arancini',e:'🍙',desc:'Crispy risotto balls stuffed with mozzarella and peas with marinara.',kcal:280,pro:10,carb:36,fat:10,fib:2},
+      {name:'Grissini with Dips',e:'🥖',desc:'Thin breadsticks with whipped ricotta, olive tapenade and sun-dried tomato dip.',kcal:230,pro:8,carb:30,fat:9,fib:2}
+    ],
+    Continental:[
+      {name:'Fresh Fruit Salad',e:'🍎',desc:'Mixed seasonal fruits with mint, lime zest and a light honey glaze.',kcal:150,pro:2,carb:35,fat:1,fib:5},
+      {name:'Hummus & Pita Platter',e:'🫓',desc:'Creamy hummus with warm pita, cucumber, tomatoes and olives.',kcal:280,pro:10,carb:38,fat:11,fib:6},
+      {name:'Cheese & Crackers',e:'🧀',desc:'Artisan cheese with seeded crackers, grapes and fig jam.',kcal:300,pro:12,carb:28,fat:16,fib:2},
+      {name:'Apple with Peanut Butter',e:'🥜',desc:'Sliced crisp apple with natural peanut butter and honey.',kcal:220,pro:7,carb:28,fat:10,fib:5},
+      {name:'Granola Yogurt Parfait',e:'🫙',desc:'Greek yogurt layered with granola, fresh berries and maple syrup.',kcal:260,pro:14,carb:38,fat:6,fib:4}
+    ],
+    Asian:[
+      {name:'Edamame with Sea Salt',e:'🫘',desc:'Steamed young soybeans in the pod with flaky sea salt.',kcal:150,pro:12,carb:14,fat:4,fib:6},
+      {name:'Vegetable Spring Rolls',e:'🥢',desc:'Crispy spring rolls with cabbage, carrot and glass noodles with sweet chili.',kcal:240,pro:5,carb:34,fat:9,fib:3},
+      {name:'Steamed Dumplings',e:'🥟',desc:'Delicate dumplings filled with pork and ginger with soy dipping sauce.',kcal:220,pro:10,carb:30,fat:6,fib:2},
+      {name:'Mochi Ice Cream',e:'🍡',desc:'Chewy rice cakes filled with matcha, strawberry and mango ice cream.',kcal:200,pro:3,carb:38,fat:4,fib:1}
+    ],
+    Mexican:[
+      {name:'Guacamole & Chips',e:'🥑',desc:'Freshly made guacamole with tomato salsa and crispy tortilla chips.',kcal:280,pro:4,carb:28,fat:16,fib:7},
+      {name:'Street Corn (Elote)',e:'🌽',desc:'Grilled corn with mayo, chili powder, cotija cheese and lime.',kcal:250,pro:6,carb:32,fat:11,fib:3},
+      {name:'Mini Quesadillas',e:'🫓',desc:'Small tortillas with melted cheese, jalapeño and pico de gallo.',kcal:240,pro:9,carb:28,fat:10,fib:2},
+      {name:'Pico de Gallo & Chips',e:'🍅',desc:'Fresh tomato-cilantro salsa with lime, served with crispy corn chips.',kcal:180,pro:3,carb:28,fat:6,fib:4}
+    ]
+  },
+  dinner:{
+    Indian:[
+      {name:'Mutton Kosha',e:'🍖',desc:'Slow-braised mutton in dark Bengali spice paste, served with luchi.',kcal:750,pro:42,carb:45,fat:35,fib:3},
+      {name:'Dal Makhani with Roti',e:'🫘',desc:'Slow-simmered black lentils in rich tomato-cream sauce with roti.',kcal:565,pro:22,carb:78,fat:16,fib:12},
+      {name:'Seekh Kebab & Saffron Rice',e:'🍢',desc:'Spiced minced meat skewers with saffron-infused basmati and mint chutney.',kcal:685,pro:38,carb:62,fat:26,fib:4},
+      {name:'Mochar Ghonto',e:'🌸',desc:'Bengali banana flower stir-fry with potatoes and coconut, with rice.',kcal:580,pro:15,carb:88,fat:18,fib:9},
+      {name:'Palak Paneer with Naan',e:'🌿',desc:'Cottage cheese in velvety spiced spinach sauce with butter naan.',kcal:620,pro:28,carb:68,fat:26,fib:8},
+      {name:'Fish Fry with Dal',e:'🐟',desc:'Bengali mustard-spiced fried fish with yellow dal and steamed rice.',kcal:640,pro:40,carb:72,fat:20,fib:6}
+    ],
+    Italian:[
+      {name:'Spaghetti Carbonara',e:'🍝',desc:'Al dente spaghetti with guanciale, eggs, pecorino and black pepper.',kcal:680,pro:32,carb:78,fat:24,fib:3},
+      {name:'Chicken Piccata',e:'🍋',desc:'Pan-seared chicken in lemon-caper butter sauce with pasta.',kcal:620,pro:42,carb:52,fat:22,fib:3},
+      {name:'Classic Lasagna',e:'🫙',desc:'Layers of pasta, slow-cooked bolognese, béchamel and parmesan.',kcal:720,pro:36,carb:68,fat:32,fib:5},
+      {name:'Pizza Margherita',e:'🍕',desc:'Thin-crust pizza with san marzano tomato, fresh mozzarella and basil.',kcal:580,pro:24,carb:72,fat:18,fib:4},
+      {name:'Osso Buco with Risotto',e:'🦴',desc:'Braised veal shanks in white wine with gremolata and saffron risotto.',kcal:780,pro:48,carb:62,fat:28,fib:3}
+    ],
+    Continental:[
+      {name:'Herb Roasted Chicken & Quinoa',e:'🍗',desc:'Rosemary-thyme chicken breast with quinoa pilaf and roasted vegetables.',kcal:575,pro:42,carb:45,fat:18,fib:7},
+      {name:'Grilled Salmon & Asparagus',e:'🐟',desc:'Atlantic salmon with asparagus, lemon butter sauce and herbed potatoes.',kcal:560,pro:44,carb:32,fat:26,fib:6},
+      {name:'Beef Bourguignon',e:'🥩',desc:'Slow-braised beef in Burgundy wine with mushrooms and pearl onions.',kcal:680,pro:46,carb:38,fat:28,fib:5},
+      {name:"Shepherd's Pie",e:'🥧',desc:'Slow-cooked lamb and vegetable filling topped with creamy mashed potato.',kcal:620,pro:36,carb:58,fat:24,fib:7},
+      {name:'Pork Tenderloin & Veg',e:'🥩',desc:'Herb-crusted pork tenderloin with roasted root vegetables and apple-mustard jus.',kcal:540,pro:42,carb:38,fat:20,fib:7}
+    ],
+    Asian:[
+      {name:'Teriyaki Chicken Bowl',e:'🍱',desc:'Glazed teriyaki chicken over steamed rice with edamame and sesame.',kcal:620,pro:38,carb:72,fat:16,fib:5},
+      {name:'Gyoza & Miso Soup',e:'🥢',desc:'Pan-fried dumplings with ponzu sauce, warm miso soup and rice.',kcal:520,pro:18,carb:68,fat:16,fib:5},
+      {name:'Stir-Fry Noodles',e:'🍜',desc:'Wok-tossed egg noodles with vegetables in black bean-ginger sauce.',kcal:480,pro:18,carb:72,fat:14,fib:6},
+      {name:'Thai Basil Chicken',e:'🌿',desc:'Minced chicken with Thai holy basil, chili and oyster sauce over rice.',kcal:560,pro:36,carb:58,fat:18,fib:3},
+      {name:'Korean BBQ Bowl',e:'🥩',desc:'Bulgogi beef with steamed rice, kimchi, spinach namul and sesame oil.',kcal:640,pro:40,carb:68,fat:20,fib:5}
+    ],
+    Mexican:[
+      {name:'Chicken Fajitas',e:'🌯',desc:'Sizzling chicken and peppers with warm tortillas, guacamole and sour cream.',kcal:580,pro:36,carb:52,fat:22,fib:7},
+      {name:'Tacos al Pastor',e:'🌮',desc:'Pork in achiote and pineapple on soft corn tortillas with cilantro.',kcal:560,pro:32,carb:58,fat:20,fib:6},
+      {name:'Chile Verde',e:'🌶️',desc:'Pork shoulder braised in tomatillo-green chile sauce with rice and beans.',kcal:620,pro:40,carb:52,fat:22,fib:8},
+      {name:'Mole Chicken with Rice',e:'🍫',desc:'Chicken in complex mole sauce with dark chocolate and dried chilies.',kcal:680,pro:42,carb:62,fat:24,fib:6},
+      {name:'Carnitas Tacos',e:'🐷',desc:'Slow-cooked pulled pork with pickled onion and salsa verde on corn tortillas.',kcal:600,pro:36,carb:54,fat:26,fib:5}
+    ]
+  }
+};
+
+// ── STATE ──────────────────────────────────────────────
+let cfg    = JSON.parse(localStorage.getItem('mp-cfg')    || 'null');
+let plan   = JSON.parse(localStorage.getItem('mp-plan')   || 'null');
+let votes  = JSON.parse(localStorage.getItem('mp-votes')  || '{}');
+let cooked = JSON.parse(localStorage.getItem('mp-cooked') || '{}');
+// cooked keys: "mealType|mealName" → true
+let activeDay = 'Monday';
+
+let wiz = {
+  step:1, familyName:'', memberCount:2,
+  members:[{name:'',gender:'M',age:''},{name:'',gender:'F',age:''}],
+  meals:{breakfast:true,lunch:true,snack:true,dinner:true},
+  cuisines:{Indian:25,Italian:15,Continental:20,Asian:25,Mexican:15},
+  cookedPct:80
+};
+
+// ── HELPERS ────────────────────────────────────────────
+function pickCuisine(a){const t=Object.values(a).reduce((x,b)=>x+b,0);let r=Math.random()*t,c=0;for(const[k,p]of Object.entries(a)){c+=p;if(r<=c)return k;}return Object.keys(a)[0];}
+function cuisTotal(){return Object.values(wiz.cuisines).reduce((a,b)=>a+b,0);}
+function cookedKey(mt,name){return `${mt}|${name}`;}
+function isCookedMeal(mt,name){return !!cooked[cookedKey(mt,name)];}
+function cookedCount(){return Object.keys(cooked).length;}
+
+function save(){
+  localStorage.setItem('mp-cfg',JSON.stringify(cfg));
+  localStorage.setItem('mp-plan',JSON.stringify(plan));
+  localStorage.setItem('mp-votes',JSON.stringify(votes));
+  localStorage.setItem('mp-cooked',JSON.stringify(cooked));
+}
+
+// ── COOKED ACTIONS ─────────────────────────────────────
+function markCooked(mt, name, val){
+  const k = cookedKey(mt, name);
+  if(val === 'cooked') cooked[k] = true;
+  else delete cooked[k];
+  localStorage.setItem('mp-cooked', JSON.stringify(cooked));
+  render();
+}
+window.markCooked = markCooked;
+
+// ── VOTE ACTIONS ───────────────────────────────────────
+function getVote(mid,mbr){return votes[mid]?.[mbr]||null;}
+function setVote(mid,mbr,val){if(!votes[mid])votes[mid]={};votes[mid][mbr]=(votes[mid][mbr]===val)?null:val;localStorage.setItem('mp-votes',JSON.stringify(votes));render();}
+window.setVote=setVote;
+function isFlagged(mid){if(!votes[mid]||!cfg)return false;return cfg.members.filter(m=>votes[mid][m.name]==='dis').length>=3;}
+function flagCount(){if(!plan)return 0;return DAYS.flatMap(d=>Object.values(plan[d]||{}).map(m=>m.id)).filter(id=>isFlagged(id)).length;}
+
+// ── PLAN GENERATION ────────────────────────────────────
+function genPlan(c){
+  const cookedPct = c.cookedPct ?? 80;
+  const used={},p={};
+  for(const day of DAYS){
+    p[day]={};
+    for(const mt of MTS){
+      if(!c.meals[mt.key]) continue;
+      const cu = pickCuisine(c.cuisines);
+      const pool = DB[mt.key][cu] || [];
+      if(!pool.length) continue;
+      if(!used[mt.key]) used[mt.key]={};
+      if(!used[mt.key][cu]) used[mt.key][cu]=[];
+
+      // Prefer unused meals this week first
+      const unused = pool.filter(m=>!used[mt.key][cu].includes(m.name));
+      const src = unused.length ? unused : pool;
+
+      // Split src into cooked vs fresh
+      const srcCooked = src.filter(m => isCookedMeal(mt.key, m.name));
+      const srcFresh  = src.filter(m => !isCookedMeal(mt.key, m.name));
+
+      let meal;
+      if(srcCooked.length > 0 && Math.random() * 100 < cookedPct){
+        meal = srcCooked[Math.floor(Math.random() * srcCooked.length)];
+      } else if(srcFresh.length > 0){
+        meal = srcFresh[Math.floor(Math.random() * srcFresh.length)];
+      } else {
+        meal = src[Math.floor(Math.random() * src.length)];
+      }
+
+      used[mt.key][cu].push(meal.name);
+      p[day][mt.key] = {...meal, id:`${day.slice(0,3).toLowerCase()}-${mt.key[0]}`, cuisine:cu};
+    }
+  }
+  return p;
+}
+
+// ── WIZARD ACTIONS ─────────────────────────────────────
+window.wizSetCount=n=>{wiz.memberCount=parseInt(n);while(wiz.members.length<wiz.memberCount)wiz.members.push({name:'',gender:'M',age:''});wiz.members=wiz.members.slice(0,wiz.memberCount);renderWiz();};
+window.wizSetMember=(i,f,v)=>{wiz.members[i][f]=v;};
+window.wizToggleMeal=k=>{wiz.meals[k]=!wiz.meals[k];renderWiz();};
+window.wizSetCuisine=(name,val)=>{wiz.cuisines[name]=Math.max(0,Math.min(100,parseInt(val)||0));renderWiz();};
+window.resetCuisines=()=>{CUISINES.forEach(c=>wiz.cuisines[c]=20);renderWiz();};
+window.setCookedPct=v=>{wiz.cookedPct=parseInt(v);renderWiz();};
+window.wizBack=()=>{if(wiz.step>1){wiz.step--;renderWiz();}};
+window.wizNext=()=>{
+  if(wiz.step===1){if(!wiz.familyName.trim())wiz.familyName='Our Family';wiz.step=2;}
+  else if(wiz.step===2){wiz.members.forEach((m,i)=>{if(!m.name.trim())m.name=`Member ${i+1}`;});wiz.step=3;}
+  else if(wiz.step===3){if(!Object.values(wiz.meals).some(v=>v))return;wiz.step=4;}
+  else if(wiz.step===4){
+    if(cuisTotal()!==100)return;
+    cfg={familyName:wiz.familyName,members:wiz.members.slice(0,wiz.memberCount).map(m=>({name:m.name||'Member',gender:m.gender,age:parseInt(m.age)||0})),meals:{...wiz.meals},cuisines:{...wiz.cuisines},cookedPct:wiz.cookedPct};
+    votes={};plan=genPlan(cfg);save();render();return;
+  }
+  renderWiz();
+};
+window.newWeek=()=>{votes={};plan=genPlan(cfg);activeDay='Monday';save();render();};
+window.switchDay=d=>{activeDay=d;render();};
+window.editSettings=()=>{
+  wiz={step:1,familyName:cfg.familyName,memberCount:cfg.members.length,
+    members:cfg.members.map(m=>({name:m.name,gender:m.gender,age:String(m.age||'')})),
+    meals:{...cfg.meals},cuisines:{...cfg.cuisines},cookedPct:cfg.cookedPct??80};
+  cfg=null;render();
+};
+
+// ── WIZARD RENDER ──────────────────────────────────────
+function prog(){
+  const lbls=['Family','Members','Meals','Cuisine'];
+  return`<div class="progress">${lbls.map((l,i)=>{const n=i+1,cls=n<wiz.step?'done':n===wiz.step?'active':'';return`${i>0?`<div class="pline ${n<=wiz.step?'done':''}"></div>`:''}
+  <div class="ps ${cls}"><div class="ps-dot">${n<wiz.step?'✓':n}</div><div class="ps-lbl">${l}</div></div>`;}).join('')}</div>`;
+}
+
+function renderWiz(){
+  const cc = cookedCount();
+  const content=[null,
+    ()=>`<div class="step-card"><div class="step-title">Welcome! 👋</div><div class="step-desc">Set up your family meal planner in about 2 minutes.</div>
+      <div class="fg"><label class="fl">Family Name</label><input class="fi" type="text" placeholder="e.g. The Smith Family" value="${wiz.familyName}" oninput="wiz.familyName=this.value"></div>
+      <div class="fg"><label class="fl">Number of Family Members</label><select class="fi" onchange="wizSetCount(this.value)">${[1,2,3,4,5,6,7,8].map(n=>`<option value="${n}" ${n===wiz.memberCount?'selected':''}>${n} member${n>1?'s':''}</option>`).join('')}</select></div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="wizNext()">Next →</button></div></div>`,
+
+    ()=>`<div class="step-card"><div class="step-title">Family Members</div><div class="step-desc">Tell us about each member.</div>
+      ${wiz.members.slice(0,wiz.memberCount).map((m,i)=>`<div style="margin-bottom:14px"><div class="mnum">Member ${i+1}</div><div class="mrow">
+        <div><label class="fl">Name</label><input class="fi" type="text" placeholder="Name" value="${m.name}" oninput="wizSetMember(${i},'name',this.value)"></div>
+        <div><label class="fl">Gender</label><select class="fi" onchange="wizSetMember(${i},'gender',this.value)"><option value="M" ${m.gender==='M'?'selected':''}>Male</option><option value="F" ${m.gender==='F'?'selected':''}>Female</option><option value="Other" ${m.gender==='Other'?'selected':''}>Other</option></select></div>
+        <div><label class="fl">Age</label><input class="fi" type="number" placeholder="Age" min="1" max="120" value="${m.age}" oninput="wizSetMember(${i},'age',this.value)"></div>
+      </div></div>`).join('')}
+      <div class="btn-row"><button class="btn btn-sec" onclick="wizBack()">← Back</button><button class="btn btn-primary" onclick="wizNext()">Next →</button></div></div>`,
+
+    ()=>{const ok=Object.values(wiz.meals).some(v=>v);return`<div class="step-card"><div class="step-title">Meal Preferences</div><div class="step-desc">Which meals to include in the weekly plan?</div>
+      <div class="ck-grid">${MTS.map(mt=>`<div class="ck ${wiz.meals[mt.key]?'on':''}" onclick="wizToggleMeal('${mt.key}')"><div class="ckbox">${wiz.meals[mt.key]?'✓':''}</div><span style="font-size:18px">${mt.icon}</span><span class="ck-lbl">${mt.label}</span></div>`).join('')}</div>
+      <div class="btn-row"><button class="btn btn-sec" onclick="wizBack()">← Back</button><button class="btn btn-primary" ${ok?'':'disabled'} onclick="wizNext()">Next →</button></div></div>`;},
+
+    ()=>{
+      const total=cuisTotal(),ok=total===100;
+      return`<div class="step-card">
+        <div class="step-title">Cuisine Mix & Familiarity</div>
+        <div class="step-desc">Set cuisine percentages (must total 100%) and how often to reuse meals your family knows.</div>
+
+        <!-- Familiar meals % -->
+        <div style="background:rgba(64,145,108,.08);border:1px solid rgba(64,145,108,.2);border-radius:12px;padding:14px 16px;margin-bottom:20px">
+          <div class="chead">
+            <span class="cname-lbl">🍳 Use "Have Cooked" meals</span>
+            <span class="cpct" style="color:var(--teal)">${wiz.cookedPct}%</span>
+          </div>
+          <input type="range" min="0" max="100" value="${wiz.cookedPct}" style="accent-color:var(--teal)" oninput="setCookedPct(this.value)">
+          <div style="font-size:11px;color:var(--dim);margin-top:5px">${cc>0?`You have <strong style="color:var(--teal)">${cc} familiar meal${cc>1?'s':''}</strong> saved. When generating a plan, ${wiz.cookedPct}% of slots will prefer these.`:'Mark meals as "Have Cooked" on any meal card — future plans will then reuse them at this frequency.'}</div>
+        </div>
+
+        <!-- Cuisine sliders -->
+        ${CUISINES.map(c=>`<div class="crow"><div class="chead"><span class="cname-lbl">${CE[c]} ${c}</span><span class="cpct" style="color:${CL[c]}">${wiz.cuisines[c]}%</span></div><input type="range" min="0" max="100" value="${wiz.cuisines[c]}" style="accent-color:${CL[c]}" oninput="wizSetCuisine('${c}',this.value)"></div>`).join('')}
+        <div class="total-bar ${ok?'ok':'bad'}">${ok?'✓ Total equals 100%':`Total: ${total}% — must equal 100%`}<button class="btn btn-ghost" style="margin-left:auto" onclick="resetCuisines()">Reset Equal</button></div>
+        <div class="btn-row"><button class="btn btn-sec" onclick="wizBack()">← Back</button><button class="btn btn-primary" ${ok?'':'disabled'} onclick="wizNext()">Generate Plan 🎉</button></div>
+      </div>`;
+    }
+  ];
+  document.getElementById('app').innerHTML=`<div class="wizard"><div class="wiz-top"><div class="htag">Weekly Meal Planner</div><div class="wiz-title">Plan Your <em>Family</em> Meals</div><div class="wiz-sub">Personalized 5-day plan with WHO-aligned nutrition</div></div>${prog()}${content[wiz.step]()}</div>`;
+}
+
+// ── MAIN APP RENDER ────────────────────────────────────
+function mealCard(meal, type){
+  const flagged = isFlagged(meal.id);
+  const dis = cfg.members.filter(m=>getVote(meal.id,m.name)==='dis').length;
+  const isCooked = isCookedMeal(type.key, meal.name);
+
+  const vrows = cfg.members.map(m=>{
+    const v=getVote(meal.id,m.name),eg=m.gender==='F'?'👩':m.gender==='M'?'👨':'🧑';
+    return`<div class="vrow"><span class="vmem">${eg} ${m.name}</span><div class="vbtns">
+      <button class="vbtn like ${v==='like'?'on':''}" onclick="setVote('${meal.id}','${m.name}','like')">👍</button>
+      <button class="vbtn dis ${v==='dis'?'on':''}" onclick="setVote('${meal.id}','${m.name}','dis')">👎</button>
+    </div></div>`;
+  }).join('');
+
+  // Escape single quotes in meal name for inline JS
+  const safeName = meal.name.replace(/'/g,"\\'");
+
+  return`<div class="card ${flagged?'flagged':''}">
+    <div class="ctype">
+      <span style="font-size:13px">${type.icon}</span>&nbsp;
+      <span class="ctype-lbl">${type.label}</span>
+      <div style="margin-left:auto">
+        <select class="cooked-sel ${isCooked?'is-cooked':''}"
+          onchange="markCooked('${type.key}','${safeName}',this.value)">
+          <option value="new"    ${!isCooked?'selected':''}>🆕 New</option>
+          <option value="cooked" ${isCooked ?'selected':''}>✅ Have Cooked</option>
+        </select>
+      </div>
+    </div>
+    <div class="cbody">
+      <span class="cbadge" style="background:${CL[meal.cuisine]}22;color:${CL[meal.cuisine]}">${meal.cuisine}</span>
+      <div class="cname"><span class="cemoji">${meal.e}</span>${meal.name}</div>
+      <div class="cdesc">${meal.desc}</div>
+      <div class="pills">
+        <span class="pill cal">🔥 ${meal.kcal} kcal</span>
+        <span class="pill">🥩 ${meal.pro}g protein</span>
+        <span class="pill">🌾 ${meal.carb}g carbs</span>
+        <span class="pill">🫙 ${meal.fat}g fat</span>
+        <span class="pill">🌿 ${meal.fib}g fiber</span>
+      </div>
+    </div>
+    ${flagged?`<div class="falert">⚠️ Flagged for replacement — ${dis}/${cfg.members.length} members dislike</div>`:''}
+    <div class="vsect"><div class="vlbl">Family Votes</div><div class="vgrid">${vrows}</div></div>
+  </div>`;
+}
+
+function render(){
+  if(!cfg||!plan){renderWiz();return;}
+  const dp=plan[activeDay]||{},am=MTS.filter(t=>cfg.meals[t.key]&&dp[t.key]);
+  const kcal=am.reduce((a,t)=>a+(dp[t.key]?.kcal||0),0);
+  const pro=am.reduce((a,t)=>a+(dp[t.key]?.pro||0),0);
+  const carb=am.reduce((a,t)=>a+(dp[t.key]?.carb||0),0);
+  const fat=am.reduce((a,t)=>a+(dp[t.key]?.fat||0),0);
+  const fc=flagCount();
+  const cc=cookedCount();
+
+  const tabs=DAYS.map(d=>`<button class="tab ${d===activeDay?'active':''}" onclick="switchDay('${d}')">${d.slice(0,3)}</button>`).join('');
+  const cards=am.map(t=>mealCard(dp[t.key],t)).join('');
+  const chips=cfg.members.map(m=>`<div class="mchip">${m.gender==='F'?'👩':m.gender==='M'?'👨':'🧑'} ${m.name}</div>`).join('');
+  const legend=Object.entries(cfg.cuisines).filter(([,v])=>v>0).map(([c,v])=>`<div class="li"><div class="ldot" style="background:${CL[c]}"></div>${CE[c]} ${c} ${v}%</div>`).join('');
+  const flagNode=fc>0?`<div class="ndiv"></div><div style="background:rgba(220,60,60,.15);border:1px solid rgba(220,60,60,.35);border-radius:100px;padding:4px 14px;font-size:12px;font-weight:700;color:#E07070">⚠️ ${fc} flagged</div>`:'';
+  const cookedNode=cc>0?`<div class="ndiv"></div><div class="cooked-count">🍳 ${cc} familiar</div>`:'';
+
+  document.getElementById('app').innerHTML=`
+    <header>
+      <div class="htag">5-Day Family Meal Planner</div>
+      <h1>${cfg.familyName} <em>Meals</em></h1>
+      <div style="color:var(--dim);font-size:13px;margin-top:5px">${Object.entries(cfg.cuisines).filter(([,v])=>v>0).map(([c,v])=>`${v}% ${c}`).join(' · ')} · ${cfg.cookedPct??80}% familiar</div>
+      <div class="mbar">${chips}</div>
+      <div class="hacts">
+        <button class="btn btn-ghost" onclick="newWeek()">⟳ New Week Plan</button>
+        <button class="btn btn-ghost" onclick="editSettings()">⚙ Edit Family</button>
+      </div>
+    </header>
+    <div class="tabs-wrap">${tabs}</div>
+    <div style="padding:0 24px"><div class="nbanner">
+      <h3>Daily Nutrition · ${activeDay}</h3>
+      <div class="nst"><div class="v">${kcal}</div><div class="l">Calories</div></div><div class="ndiv"></div>
+      <div class="nst"><div class="v">${pro}g</div><div class="l">Protein</div></div><div class="ndiv"></div>
+      <div class="nst"><div class="v">${carb}g</div><div class="l">Carbs</div></div><div class="ndiv"></div>
+      <div class="nst"><div class="v">${fat}g</div><div class="l">Fat</div></div>
+      ${flagNode}${cookedNode}
+    </div></div>
+    <div class="legend">${legend}
+      <div class="li" style="margin-left:6px;color:#E07070">⚠️ 3+ dislikes = flagged</div>
+      <div class="li" style="color:var(--teal)">✅ = Have Cooked</div>
+    </div>
+    <div class="grid">${cards}</div>
+    <footer>
+      <strong>WHO Nutritional Guidelines</strong> — values shown per person per serving<br>
+      Adults: ~2000–2500 kcal/day · Children 6–11y: ~1600–2200 kcal · Teens: ~2000–2800 kcal<br>
+      <span style="opacity:.5;font-size:11px">All settings, votes and "Have Cooked" list saved locally in your browser</span>
+    </footer>`;
+}
+
+render();
+</script>
+</body>
+</html>
